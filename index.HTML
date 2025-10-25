@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InfluenceConnect | Influencer Collaboration Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #e63946;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+        }
+
+        body {
+            background-color: #f5f7fb;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .logo i {
+            color: var(--accent);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--accent);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #d81773;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-outline:hover {
+            background-color: white;
+            color: var(--primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 5rem 0;
+            background: linear-gradient(rgba(67, 97, 238, 0.9), rgba(58, 12, 163, 0.9)), url('https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1469&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            opacity: 0.9;
+        }
+
+        .hero-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        /* Features Section */
+        .section {
+            padding: 5rem 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+
+        .section-title p {
+            color: var(--gray);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-align: center;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+
+        .feature-card p {
+            color: var(--gray);
+        }
+
+        /* Influencers Section */
+        .influencers-section {
+            background-color: var(--light);
+        }
+
+        /* Search and Filter Styles */
+        .search-filter-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 2.5rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 50px;
+            font-size: 1rem;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+
+        .filter-options {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .filter-options select {
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 5px;
+            background: white;
+        }
+
+        .influencer-filters {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1.5rem;
+            background: white;
+            border: 1px solid var(--light-gray);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn.active, .filter-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .influencers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .influencer-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s;
+            position: relative;
+        }
+
+        .influencer-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .influencer-img {
+            height: 200px;
+            background-color: var(--light-gray);
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .platform-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        .influencer-info {
+            padding: 1.5rem;
+        }
+
+        .influencer-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .influencer-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .influencer-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .tag {
+            background: var(--light-gray);
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            color: var(--dark);
+        }
+
+        .verified {
+            background: var(--success) !important;
+            color: white !important;
+        }
+
+        .influencer-description {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--gray);
+            grid-column: 1 / -1;
+        }
+
+        /* Auth Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 500px;
+            padding: 2rem;
+            position: relative;
+            animation: modalFade 0.3s;
+        }
+
+        @keyframes modalFade {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .auth-tab {
+            padding: 1rem 2rem;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--gray);
+            border-bottom: 3px solid transparent;
+        }
+
+        .auth-tab.active {
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 4rem 0 2rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-column h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: var(--accent);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-links a {
+            color: #adb5bd;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: white;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+
+        .social-links a:hover {
+            background: var(--accent);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #adb5bd;
+            font-size: 0.9rem;
+        }
+
+        /* Status message */
+        .status-message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            text-align: center;
+            display: none;
+        }
+        
+        .status-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            nav ul {
+                gap: 1rem;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .search-filter-bar {
+                flex-direction: column;
+            }
+
+            .search-box {
+                min-width: 100%;
+            }
+
+            .filter-options {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-handshake"></i>
+                    <span>InfluenceConnect</span>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#influencers">Influencers</a></li>
+                        <li><a href="#brands">For Brands</a></li>
+                        <li><a href="#about">About</a></li>
+                    </ul>
+                </nav>
+                <div class="auth-buttons">
+                    <button class="btn btn-outline" id="loginBtn">Log In</button>
+                    <button class="btn btn-primary" id="signupBtn">Sign Up</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="container">
+            <h1>Connect Brands with Top Influencers</h1>
+            <p>Find the perfect influencer for your brand or discover exciting collaboration opportunities as a content creator.</p>
+            <div class="hero-buttons">
+                <button class="btn btn-primary">I'm a Brand</button>
+                <button class="btn btn-outline">I'm an Influencer</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="section" id="features">
+        <div class="container">
+            <div class="section-title">
+                <h2>How It Works</h2>
+                <p>Our platform makes influencer collaboration simple and effective for both brands and creators.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>Discover</h3>
+                    <p>Find influencers that match your brand values and target audience with our advanced filtering system.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3>Connect</h3>
+                    <p>Reach out directly to influencers or respond to collaboration opportunities.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <h3>Collaborate</h3>
+                    <p>Manage campaigns, track performance, and build lasting partnerships.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Influencers Section -->
+    <section class="section influencers-section" id="influencers">
+        <div class="container">
+            <div class="section-title">
+                <h2>Discover Influencers</h2>
+                <p>Connect with real creators looking for collaborations</p>
+            </div>
+            
+            <!-- Search and Filter Bar -->
+            <div class="search-filter-bar">
+                <div class="search-box">
+                    <input type="text" id="influencerSearch" placeholder="Search by name, niche, or platform...">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="filter-options">
+                    <select id="platformFilter">
+                        <option value="">All Platforms</option>
+                        <option value="instagram">Instagram</option>
+                        <option value="youtube">YouTube</option>
+                        <option value="tiktok">TikTok</option>
+                        <option value="twitter">Twitter</option>
+                    </select>
+                    <select id="nicheFilter">
+                        <option value="">All Niches</option>
+                        <option value="beauty">Beauty</option>
+                        <option value="fashion">Fashion</option>
+                        <option value="lifestyle">Lifestyle</option>
+                        <option value="tech">Tech</option>
+                        <option value="gaming">Gaming</option>
+                        <option value="fitness">Fitness</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Add Influencer Button -->
+            <div id="addInfluencerSection" style="display: none; margin-bottom: 2rem;">
+                <button class="btn btn-primary" id="addInfluencerBtn">
+                    <i class="fas fa-plus"></i> Add Your Profile
+                </button>
+            </div>
+
+            <!-- Dynamic Influencers Grid -->
+            <div class="influencers-grid" id="influencersGrid">
+                <div class="empty-state">
+                    <i class="fas fa-users" style="font-size: 3rem; color: var(--gray); margin-bottom: 1rem;"></i>
+                    <h3>No influencers yet</h3>
+                    <p>Be the first to add your influencer profile!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Auth Modal -->
+    <div class="modal" id="authModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeModal">&times;</span>
+            <div class="auth-tabs">
+                <div class="auth-tab active" data-tab="login">Log In</div>
+                <div class="auth-tab" data-tab="signup">Sign Up</div>
+            </div>
+            
+            <div id="authStatus" class="status-message"></div>
+            
+            <div class="auth-form active" id="loginForm">
+                <h2>Welcome Back</h2>
+                <p>Log in to your account to continue</p>
+                <form id="loginFormElement">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" class="form-control" id="loginEmail" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" class="form-control" id="loginPassword" placeholder="Enter your password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Log In</button>
+                </form>
+                <div style="text-align: center; margin-top: 1rem;">
+                    <a href="#" style="color: var(--primary);">Forgot your password?</a>
+                </div>
+            </div>
+            
+            <div class="auth-form" id="signupForm">
+                <h2>Create Account</h2>
+                <p>Sign up to start collaborating</p>
+                <form id="signupFormElement">
+                    <div class="form-group">
+                        <label for="signupName">Full Name</label>
+                        <input type="text" class="form-control" id="signupName" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupEmail">Email</label>
+                        <input type="email" class="form-control" id="signupEmail" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupPassword">Password</label>
+                        <input type="password" class="form-control" id="signupPassword" placeholder="Create a password (min. 6 characters)" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="userType">I am a</label>
+                        <select class="form-control" id="userType" required>
+                            <option value="">Select account type</option>
+                            <option value="influencer">Influencer</option>
+                            <option value="brand">Brand/Company</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Influencer Modal -->
+    <div class="modal" id="addInfluencerModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeInfluencerModal">&times;</span>
+            <h2>Add Your Influencer Profile</h2>
+            <form id="influencerForm">
+                <div class="form-group">
+                    <label for="profileName">Display Name</label>
+                    <input type="text" class="form-control" id="profileName" required>
+                </div>
+                <div class="form-group">
+                    <label for="profilePlatform">Main Platform</label>
+                    <select class="form-control" id="profilePlatform" required>
+                        <option value="">Select Platform</option>
+                        <option value="instagram">Instagram</option>
+                        <option value="youtube">YouTube</option>
+                        <option value="tiktok">TikTok</option>
+                        <option value="twitter">Twitter</option>
+                        <option value="twitch">Twitch</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="profileUsername">Username/Handle</label>
+                    <input type="text" class="form-control" id="profileUsername" required>
+                </div>
+                <div class="form-group">
+                    <label for="profileFollowers">Follower Count</label>
+                    <input type="number" class="form-control" id="profileFollowers" placeholder="e.g., 50000" required>
+                </div>
+                <div class="form-group">
+                    <label for="profileNiche">Primary Niche</label>
+                    <select class="form-control" id="profileNiche" required>
+                        <option value="">Select Niche</option>
+                        <option value="beauty">Beauty</option>
+                        <option value="fashion">Fashion</option>
+                        <option value="lifestyle">Lifestyle</option>
+                        <option value="tech">Tech & Gadgets</option>
+                        <option value="gaming">Gaming</option>
+                        <option value="fitness">Fitness & Health</option>
+                        <option value="food">Food & Cooking</option>
+                        <option value="travel">Travel</option>
+                        <option value="business">Business</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="profileRates">Collaboration Rates ($)</label>
+                    <input type="text" class="form-control" id="profileRates" placeholder="e.g., 100-500" required>
+                </div>
+                <div class="form-group">
+                    <label for="profileDescription">Profile Description</label>
+                    <textarea class="form-control" id="profileDescription" rows="3" placeholder="Tell brands about your content and audience..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Add Profile</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>InfluenceConnect</h3>
+                    <p>Connecting brands with influencers to create powerful marketing campaigns.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#influencers">Influencers</a></li>
+                        <li><a href="#brands">For Brands</a></li>
+                        <li><a href="#about">About Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Resources</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Case Studies</a></li>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Community</a></li>
+                        <li><a href="#">Partners</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contact Us</h3>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-envelope"></i> hello@influenceconnect.com</li>
+                        <li><i class="fas fa-phone"></i> +1 (555) 123-4567</li>
+                        <li><i class="fas fa-map-marker-alt"></i> 123 Influencer St, Social City</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 InfluenceConnect. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 🔥 REPLACE THIS WITH YOUR ACTUAL FIREBASE CONFIG 🔥
+        const firebaseConfig = {
+  apiKey: "AIzaSyDOjdv3aaeNeLQOcyFbfdmhj_EuqF50ecs",
+  authDomain: "influenceweb-8a38e.firebaseapp.com",
+  projectId: "influenceweb-8a38e",
+  storageBucket: "influenceweb-8a38e.firebasestorage.app",
+  messagingSenderId: "89031109803",
+  appId: "1:89031109803:web:c99d18bfc2c6e92801dbee",
+  measurementId: "G-3YQJMPQDP6"
+};
+
+        // Initialize Firebase
+        if (typeof firebase !== 'undefined') {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Global variables
+        let currentUser = null;
+        let allInfluencers = [];
+
+        // DOM elements
+        const influencersGrid = document.getElementById('influencersGrid');
+        const addInfluencerSection = document.getElementById('addInfluencerSection');
+        const addInfluencerBtn = document.getElementById('addInfluencerBtn');
+        const addInfluencerModal = document.getElementById('addInfluencerModal');
+        const closeInfluencerModal = document.getElementById('closeInfluencerModal');
+        const influencerForm = document.getElementById('influencerForm');
+        const influencerSearch = document.getElementById('influencerSearch');
+        const platformFilter = document.getElementById('platformFilter');
+        const nicheFilter = document.getElementById('nicheFilter');
+        const authModal = document.getElementById('authModal');
+        const loginBtn = document.getElementById('loginBtn');
+        const signupBtn = document.getElementById('signupBtn');
+        const closeModal = document.getElementById('closeModal');
+        const authTabs = document.querySelectorAll('.auth-tab');
+        const loginForm = document.getElementById('loginForm');
+        const signupForm = document.getElementById('signupForm');
+        const authStatus = document.getElementById('authStatus');
+
+        // Authentication state listener
+        auth.onAuthStateChanged((user) => {
+            currentUser = user;
+            if (user) {
+                addInfluencerSection.style.display = 'block';
+                loadInfluencers();
+            } else {
+                addInfluencerSection.style.display = 'none';
+                loadInfluencers();
+            }
+        });
+
+        // Load influencers from Firebase
+        function loadInfluencers() {
+            db.collection('influencers').get()
+                .then((querySnapshot) => {
+                    allInfluencers = [];
+                    querySnapshot.forEach((doc) => {
+                        allInfluencers.push({ id: doc.id, ...doc.data() });
+                    });
+                    displayInfluencers(allInfluencers);
+                })
+                .catch((error) => {
+                    console.error("Error loading influencers: ", error);
+                    displayInfluencers([]);
+                });
+        }
+
+        // Display influencers in grid
+        function displayInfluencers(influencers) {
+            influencersGrid.innerHTML = '';
+
+            if (influencers.length === 0) {
+                influencersGrid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-users" style="font-size: 3rem; color: var(--gray); margin-bottom: 1rem;"></i>
+                        <h3>No influencers found</h3>
+                        <p>${currentUser ? 'Be the first to add your profile!' : 'Sign up to add your influencer profile'}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            influencers.forEach(influencer => {
+                const influencerCard = document.createElement('div');
+                influencerCard.className = 'influencer-card';
+                
+                const platformIcon = getPlatformIcon(influencer.platform);
+                const platformName = getPlatformName(influencer.platform);
+                
+                influencerCard.innerHTML = `
+                    <div class="influencer-img" style="background-color: var(--light-gray);">
+                        <div class="platform-badge">${platformIcon}</div>
+                    </div>
+                    <div class="influencer-info">
+                        <h3 class="influencer-name">${influencer.name}</h3>
+                        <div class="influencer-stats">
+                            <span><i class="fas fa-users"></i> ${formatFollowers(influencer.followers)}</span>
+                            <span><i class="fas fa-dollar-sign"></i> ${influencer.rates}</span>
+                            <span>${platformIcon}</span>
+                        </div>
+                        <div class="influencer-tags">
+                            <span class="tag">${influencer.niche}</span>
+                            <span class="tag">${platformName}</span>
+                            ${influencer.verified ? '<span class="tag verified"><i class="fas fa-check"></i> Verified</span>' : ''}
+                        </div>
+                        ${influencer.description ? `<p class="influencer-description">${influencer.description}</p>` : ''}
+                        <div class="influencer-actions">
+                            <button class="btn btn-primary" style="width: 100%;">Contact</button>
+                        </div>
+                    </div>
+                `;
+                influencersGrid.appendChild(influencerCard);
+            });
+        }
+
+        // Helper functions
+        function getPlatformIcon(platform) {
+            const icons = {
+                'instagram': '<i class="fab fa-instagram"></i>',
+                'youtube': '<i class="fab fa-youtube"></i>',
+                'tiktok': '<i class="fab fa-tiktok"></i>',
+                'twitter': '<i class="fab fa-twitter"></i>',
+                'twitch': '<i class="fab fa-twitch"></i>'
+            };
+            return icons[platform] || '<i class="fas fa-globe"></i>';
+        }
+
+        function getPlatformName(platform) {
+            const names = {
+                'instagram': 'Instagram',
+                'youtube': 'YouTube',
+                'tiktok': 'TikTok',
+                'twitter': 'Twitter',
+                'twitch': 'Twitch'
+            };
+            return names[platform] || platform;
+        }
+
+        function formatFollowers(count) {
+            if (count >= 1000000) {
+                return (count / 1000000).toFixed(1) + 'M';
+            } else if (count >= 1000) {
+                return (count / 1000).toFixed(1) + 'K';
+            }
+            return count;
+        }
+
+        // Search and filter functionality
+        influencerSearch.addEventListener('input', filterInfluencers);
+        platformFilter.addEventListener('change', filterInfluencers);
+        nicheFilter.addEventListener('change', filterInfluencers);
+
+        function filterInfluencers() {
+            const searchTerm = influencerSearch.value.toLowerCase();
+            const platform = platformFilter.value;
+            const niche = nicheFilter.value;
+
+            const filtered = allInfluencers.filter(influencer => {
+                const matchesSearch = !searchTerm || 
+                    influencer.name.toLowerCase().includes(searchTerm) ||
+                    influencer.niche.toLowerCase().includes(searchTerm) ||
+                    influencer.platform.toLowerCase().includes(searchTerm) ||
+                    (influencer.description && influencer.description.toLowerCase().includes(searchTerm));
+                
+                const matchesPlatform = !platform || influencer.platform === platform;
+                const matchesNiche = !niche || influencer.niche === niche;
+
+                return matchesSearch && matchesPlatform && matchesNiche;
+            });
+
+            displayInfluencers(filtered);
+        }
+
+        // Add influencer functionality
+        addInfluencerBtn.addEventListener('click', () => {
+            addInfluencerModal.style.display = 'flex';
+        });
+
+        closeInfluencerModal.addEventListener('click', () => {
+            addInfluencerModal.style.display = 'none';
+        });
+
+        influencerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            if (!currentUser) {
+                alert('Please log in to add your profile');
+                return;
+            }
+
+            const influencerData = {
+                name: document.getElementById('profileName').value,
+                platform: document.getElementById('profilePlatform').value,
+                username: document.getElementById('profileUsername').value,
+                followers: parseInt(document.getElementById('profileFollowers').value),
+                niche: document.getElementById('profileNiche').value,
+                rates: document.getElementById('profileRates').value,
+                description: document.getElementById('profileDescription').value,
+                userId: currentUser.uid,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                verified: false
+            };
+
+            // Check if user already has a profile
+            db.collection('influencers').where('userId', '==', currentUser.uid).get()
+                .then((querySnapshot) => {
+                    if (!querySnapshot.empty) {
+                        alert('You already have an influencer profile!');
+                        return;
+                    }
+
+                    // Add new influencer profile
+                    db.collection('influencers').add(influencerData)
+                        .then(() => {
+                            alert('Profile added successfully!');
+                            influencerForm.reset();
+                            addInfluencerModal.style.display = 'none';
+                            loadInfluencers();
+                        })
+                        .catch((error) => {
+                            console.error('Error adding profile: ', error);
+                            alert('Error adding profile. Please try again.');
+                        });
+                })
+                .catch((error) => {
+                    console.error('Error checking existing profile: ', error);
+                });
+        });
+
+        // Auth modal functionality
+        loginBtn.addEventListener('click', () => {
+            authModal.style.display = 'flex';
+            switchTab('login');
+        });
+
+        signupBtn.addEventListener('click', () => {
+            authModal.style.display = 'flex';
+            switchTab('signup');
+        });
+
+        closeModal.addEventListener('click', () => {
+            authModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target === authModal) {
+                authModal.style.display = 'none';
+            }
+            if (e.target === addInfluencerModal) {
+                addInfluencerModal.style.display = 'none';
+            }
+        });
+
+        // Tab switching
+        function switchTab(tab) {
+            authTabs.forEach(t => {
+                if (t.dataset.tab === tab) {
+                    t.classList.add('active');
+                } else {
+                    t.classList.remove('active');
+                }
+            });
+
+            if (tab === 'login') {
+                loginForm.classList.add('active');
+                signupForm.classList.remove('active');
+            } else {
+                loginForm.classList.remove('active');
+                signupForm.classList.add('active');
+            }
+        }
+
+        authTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                switchTab(tab.dataset.tab);
+            });
+        });
+
+        // Form submission
+        document.getElementById('loginFormElement').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    showStatus(`Welcome back! Successfully logged in as ${userCredential.user.email}`);
+                    authModal.style.display = 'none';
+                })
+                .catch((error) => {
+                    showStatus(`Login error: ${error.message}`, true);
+                });
+        });
+
+        document.getElementById('signupFormElement').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const userType = document.getElementById('userType').value;
+            
+            if (password.length < 6) {
+                showStatus('Password should be at least 6 characters', true);
+                return;
+            }
+            
+            if (!userType) {
+                showStatus('Please select an account type', true);
+                return;
+            }
+            
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    
+                    return db.collection('users').doc(user.uid).set({
+                        name: name,
+                        email: email,
+                        userType: userType,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                })
+                .then(() => {
+                    showStatus(`Account created successfully! Welcome to InfluenceConnect, ${name}`);
+                    authModal.style.display = 'none';
+                })
+                .catch((error) => {
+                    showStatus(`Signup error: ${error.message}`, true);
+                });
+        });
+
+        // Show status message
+        function showStatus(message, isError = false) {
+            authStatus.textContent = message;
+            authStatus.className = `status-message ${isError ? 'status-error' : 'status-success'}`;
+            authStatus.style.display = 'block';
+            
+            setTimeout(() => {
+                authStatus.style.display = 'none';
+            }, 5000);
+        }
+
+        // Initialize
+        loadInfluencers();
+    </script>
+</body>
+</html>
